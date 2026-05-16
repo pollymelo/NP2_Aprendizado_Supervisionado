@@ -119,17 +119,6 @@ python resultados.py   # inclui tabela CV + modelo ajustado ao final
 3. **Manhattan** tende a superar Euclidiana neste dataset.
 4. **test_k_5** valida KNN Custom vs KNN Manual (NumPy) no mesmo k=5.
 
-## Entrega da NP2 (checklist)
-
-| Seção do enunciado | Arquivo |
-|--------------------|---------|
-| Contextualização | `RELATORIO_NP2.md` §1 |
-| Desenvolvimento algorítmico | `RELATORIO_NP2.md` §2 + `knn_custom.py` |
-| Ajuste de hiperparâmetros (k) | `test_k_*.py`, `validacao_k.py` |
-| Análise (tabelas + gráficos) | `resultados.py`, `graficos/` |
-| Dificuldades e limitações | `RELATORIO_NP2.md` §5 |
-| Conclusão (bias-variance) | `RELATORIO_NP2.md` §6 |
-
 ## Dependências
 
 - `pandas`, `numpy`, `matplotlib`
