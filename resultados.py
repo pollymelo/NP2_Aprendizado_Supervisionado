@@ -1,8 +1,5 @@
 """
-Compara todos os experimentos KNN para academic_performance.
-
-Requisitos cobertos em knn_custom.py / test_k_5.py:
-  distância → treino (fit) → inferência (predict) → métricas de erro
+Compara experimentos KNN e exibe modelo ajustado (k por validação cruzada).
 """
 
 import pandas as pd
@@ -16,10 +13,20 @@ from test_k_2_eucli import executar_treino as test_k_2_eucli
 from test_k_3_eucli import executar_treino as test_k_3_eucli
 from test_k_4_eucli import executar_treino as test_k_4_eucli
 from test_k_5 import executar_treino as test_k_5
+from validacao_k import (
+    K_DEMO_UNDERFITTING,
+    diagnostico_treino_teste,
+    executar_diagnostico_underfitting,
+    executar_modelo_ajustado,
+)
 
 
 def executar_comparacao():
     resultados = []
+
+    print("=" * 80)
+    print("EXPERIMENTOS POR k (k=1 tende a overfitting — ver modelo ajustado ao final)")
+    print("=" * 80)
 
     for executar in (
         test_k_1,
@@ -33,7 +40,6 @@ def executar_comparacao():
     ):
         resultados.append(executar())
 
-    # k=5: KNN Custom + KNN Manual, Manhattan e Euclidiana (4 resultados)
     resultados.extend(test_k_5())
 
     comparacao = (
@@ -43,24 +49,23 @@ def executar_comparacao():
     )
 
     print("\n" + "=" * 80)
-    print("COMPARAÇÃO DOS MODELOS KNN")
-    print("Target: academic_performance | Features: 4 variáveis numéricas")
+    print("COMPARAÇÃO — métricas no TESTE (target: academic_performance)")
     print("=" * 80)
     print(comparacao.round(6))
 
-    melhor = comparacao.iloc[0]
-    print("\n" + "=" * 80)
-    print("MELHOR MODELO (menor RMSE)")
-    print("=" * 80)
-    print(f"Modelo    : {melhor['Modelo']}")
-    print(f"Distância : {melhor['Distância']}")
-    print(f"K         : {melhor['K']}")
-    print(f"MSE       : {melhor['MSE']:.6f}")
-    print(f"RMSE      : {melhor['RMSE']:.6f}")
-    print(f"MAE       : {melhor['MAE']:.6f}")
-    print(f"R2        : {melhor['R2']:.6f}")
+    modelo_cv, _, diag_cv = executar_modelo_ajustado()
+    tabela_bv, tabela_bv_completa = executar_diagnostico_underfitting()
 
-    return comparacao, melhor
+    print("\n" + "=" * 80)
+    print("RECOMENDAÇÃO FINAL (equilíbrio bias-variance)")
+    print("=" * 80)
+    print(f"Evitar k=1 (overfitting) e k>={K_DEMO_UNDERFITTING} (underfitting)")
+    print(f"Usar k = {modelo_cv['K']} com distância {modelo_cv['Distância']} (escolhido por CV)")
+    print(f"RMSE teste : {modelo_cv['RMSE']:.6f}")
+    print(f"R2 teste   : {modelo_cv['R2']:.6f}")
+    print(f"Situação   : {diag_cv['status']}")
+
+    return comparacao, modelo_cv, tabela_bv_completa
 
 
 if __name__ == "__main__":

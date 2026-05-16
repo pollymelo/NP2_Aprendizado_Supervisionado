@@ -1,0 +1,11 @@
+K,metric,Distância,RMSE_CV
+3,manhattan,Manhattan,0.2717779842537986
+4,manhattan,Manhattan,0.2609623752949618
+5,manhattan,Manhattan,0.2561963108052544
+6,manhattan,Manhattan,0.25337406833815723
+7,manhattan,Manhattan,0.25019848717198545
+3,euclidean,Euclidiana,0.27218232559299854
+4,euclidean,Euclidiana,0.26238790314648297
+5,euclidean,Euclidiana,0.256010171433477
+6,euclidean,Euclidiana,0.25140919491473607
+7,euclidean,Euclidiana,0.24937586172714785
