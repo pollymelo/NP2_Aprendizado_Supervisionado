@@ -33,6 +33,16 @@ requirements.txt
 
 Todos os testes usam o **mesmo** conjunto de variáveis e split (80/20, `random_state=42`).
 
+## Normalização sem vazamento de dados
+
+A normalização MinMax em `data_utils.py` segue o padrão correto:
+
+1. **Separar** treino e teste (`separar_treino_teste`)
+2. **`fit`** do `MinMaxScalerManual` **somente** em `X_train` (min/max do treino)
+3. **`transform`** em treino e teste com os parâmetros aprendidos no passo 2
+
+O conjunto de teste **não participa** do cálculo de mínimo e máximo. Isso evita *data leakage* e mantém a avaliação honesta.
+
 ## Como executar
 
 ```bash
