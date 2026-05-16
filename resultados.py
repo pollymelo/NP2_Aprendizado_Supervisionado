@@ -33,6 +33,7 @@ def executar_comparacao():
     ):
         resultados.append(executar())
 
+    # k=5: KNN Custom + KNN Manual, Manhattan e Euclidiana (4 resultados)
     resultados.extend(test_k_5())
 
     comparacao = (

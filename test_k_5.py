@@ -1,7 +1,7 @@
 """
-Implementação 100% manual do KNN (NumPy) + pré-processamento em data_utils.
+k = 5: KNN Custom (knn_custom.py) e KNN Manual (NumPy).
 
-Mesmas features e target dos demais testes; k=5; Manhattan e Euclidiana.
+Mesmas features e target dos demais testes; Manhattan e Euclidiana.
 """
 
 import numpy as np
@@ -9,11 +9,17 @@ import pandas as pd
 
 from data_utils import TARGET, preparar_dados
 from knn_custom import (
+    KNNRegressor,
     mean_absolute_error,
     mean_squared_error,
     r2_score,
     root_mean_squared_error,
 )
+
+METRICAS = {
+    "Manhattan": "manhattan",
+    "Euclidiana": "euclidean",
+}
 
 # KNN Regressor Manhattan (distância + treino + inferência)
 
@@ -54,49 +60,75 @@ class KNNRegressorEuclidiana:
         return np.array(previsoes)
 
 
+MANUAL_REGRESSORS = {
+    "Manhattan": KNNRegressorManhattan,
+    "Euclidiana": KNNRegressorEuclidiana,
+}
+
+
+def _calcular_metricas(y_true, y_pred):
+    y_pred_lista = list(y_pred)
+    return {
+        "MSE": mean_squared_error(y_true, y_pred_lista),
+        "RMSE": root_mean_squared_error(y_true, y_pred_lista),
+        "MAE": mean_absolute_error(y_true, y_pred_lista),
+        "R2": r2_score(y_true, y_pred_lista),
+    }
+
+
+def _imprimir_resultado(rotulo_modelo, nome_distancia, n_neighbors, metricas, y_test, y_pred):
+    print("\n" + "=" * 60)
+    print(f"{rotulo_modelo} — distância {nome_distancia}")
+    print("=" * 60)
+    print(f"Target: {TARGET}")
+    print(f"K: {n_neighbors}")
+    print(f"MSE  : {metricas['MSE']:.6f}")
+    print(f"RMSE : {metricas['RMSE']:.6f}")
+    print(f"MAE  : {metricas['MAE']:.6f}")
+    print(f"R2   : {metricas['R2']:.6f}")
+    print("\nPrimeiras 10 previsões vs valores reais:")
+    print(
+        pd.DataFrame(
+            {"Real": y_test.iloc[:10].values, "Previsto": np.asarray(y_pred)[:10]}
+        ).round(4)
+    )
+
+
 def executar_treino():
     n_neighbors = 5
     X_train, X_test, y_train, y_test = preparar_dados()
     y_true = list(y_test.values)
-
     resultados = []
-    modelos = [
-        ("Manhattan", KNNRegressorManhattan),
-        ("Euclidiana", KNNRegressorEuclidiana),
-    ]
 
-    for nome_distancia, RegressorClass in modelos:
-        knn = RegressorClass(n_neighbors=n_neighbors)
+    # KNN Custom (knn_custom.py) — k = 5
 
-        # Treinamento
+    for nome_distancia, metric in METRICAS.items():
+        knn = KNNRegressor(n_neighbors=n_neighbors, metric=metric)
         knn.fit(X_train.values, y_train.values)
-
-        # Inferência
         y_pred = knn.predict(X_test.values)
-        y_pred_lista = list(y_pred)
 
-        # Métricas de erro (funções manuais de knn_custom)
-        mse = mean_squared_error(y_true, y_pred_lista)
-        rmse = root_mean_squared_error(y_true, y_pred_lista)
-        mae = mean_absolute_error(y_true, y_pred_lista)
-        r2 = r2_score(y_true, y_pred_lista)
+        metricas = _calcular_metricas(y_true, y_pred)
+        _imprimir_resultado("KNN Custom", nome_distancia, n_neighbors, metricas, y_test, y_pred)
 
-        print("\n" + "=" * 60)
-        print(f"KNN Manual (NumPy) — distância {nome_distancia}")
-        print("=" * 60)
-        print(f"Target: {TARGET}")
-        print(f"K: {n_neighbors}")
-        print(f"MSE  : {mse:.6f}")
-        print(f"RMSE : {rmse:.6f}")
-        print(f"MAE  : {mae:.6f}")
-        print(f"R2   : {r2:.6f}")
-
-        print("\nPrimeiras 10 previsões vs valores reais:")
-        print(
-            pd.DataFrame(
-                {"Real": y_test.iloc[:10].values, "Previsto": y_pred[:10]}
-            ).round(4)
+        resultados.append(
+            {
+                "Modelo": "KNN Custom",
+                "Distância": nome_distancia,
+                "K": n_neighbors,
+                "Target": TARGET,
+                **metricas,
+            }
         )
+
+    # KNN Manual (NumPy) — k = 5
+   
+    for nome_distancia, RegressorClass in MANUAL_REGRESSORS.items():
+        knn = RegressorClass(n_neighbors=n_neighbors)
+        knn.fit(X_train.values, y_train.values)
+        y_pred = knn.predict(X_test.values)
+
+        metricas = _calcular_metricas(y_true, y_pred)
+        _imprimir_resultado("KNN Manual (NumPy)", nome_distancia, n_neighbors, metricas, y_test, y_pred)
 
         resultados.append(
             {
@@ -104,10 +136,7 @@ def executar_treino():
                 "Distância": nome_distancia,
                 "K": n_neighbors,
                 "Target": TARGET,
-                "MSE": mse,
-                "RMSE": rmse,
-                "MAE": mae,
-                "R2": r2,
+                **metricas,
             }
         )
 

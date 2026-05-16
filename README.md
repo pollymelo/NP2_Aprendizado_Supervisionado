@@ -19,7 +19,7 @@ data_utils.py    # Carregamento, split e normalização MinMax manual
 knn_runner.py    # Pipeline: dados → fit → predict → métricas
 test_k_1..4      # KNN Custom, Manhattan, k = 1..4
 test_k_*_eucli   # KNN Custom, Euclidiana, k = 1..4
-test_k_5.py      # KNN Manual (NumPy), k = 5, Manhattan e Euclidiana
+test_k_5.py      # k = 5: KNN Custom + KNN Manual (NumPy), Manhattan e Euclidiana
 resultados.py    # Compara todos os experimentos
 main.py          # Executa resultados.py
 dataset.csv      # Dados
@@ -32,6 +32,18 @@ requirements.txt
 - **Features:** `daily_social_media_hours`, `sleep_hours`, `screen_time_before_sleep`, `physical_activity`
 
 Todos os testes usam o **mesmo** conjunto de variáveis e split (80/20, `random_state=42`).
+
+### Valores de k testados
+
+| k | Arquivos | Modelo |
+|---|----------|--------|
+| 1 | `test_k_1`, `test_k_1_eucli` | KNN Custom |
+| 2 | `test_k_2`, `test_k_2_eucli` | KNN Custom |
+| 3 | `test_k_3`, `test_k_3_eucli` | KNN Custom |
+| 4 | `test_k_4`, `test_k_4_eucli` | KNN Custom |
+| 5 | `test_k_5` | KNN Custom **e** KNN Manual (NumPy) |
+
+`python main.py` executa **12 experimentos** (8 com k=1..4 + 4 com k=5).
 
 ## Normalização sem vazamento de dados
 
@@ -79,7 +91,7 @@ Após `python main.py`, os modelos são ordenados por RMSE. Exemplo típico:
 1. **Melhor configuração na comparação:** KNN Custom com **k = 4** e distância **Manhattan**.
 2. **k = 3** continua muito competitivo (próximo na tabela).
 3. **Manhattan** tende a superar Euclidiana neste dataset, para a maioria dos valores de k.
-4. **test_k_5** valida a mesma lógica com implementação NumPy independente de `knn_custom.KNNRegressor`.
+4. **test_k_5** roda k=5 com KNN Custom e KNN Manual; os resultados coincidem (validação cruzada das implementações).
 
 ## Dependências
 
